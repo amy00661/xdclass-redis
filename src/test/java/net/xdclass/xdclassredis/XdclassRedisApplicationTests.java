@@ -48,7 +48,7 @@ class XdclassRedisApplicationTests {
 		userDO.setName("二當家小D");
 		userDO.setPwd("123");
 
-		redisTemplate.opsForValue().set("user:1",userDO);
+		redisTemplate.opsForValue().set("user-service:user:1",userDO);
 
 	}
 }
