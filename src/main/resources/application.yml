@@ -1,0 +1,8 @@
+server:
+  port: 8080
+
+spring:
+  redis:
+    host: { IP位址 }
+    port: 6379
+    password: { redis密碼 }
