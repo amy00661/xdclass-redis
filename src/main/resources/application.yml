@@ -6,3 +6,35 @@ spring:
     host: { IP位址 }
     port: 6379
     password: { redis密碼 }
+
+    #指定redis底層客戶端實現
+    client-type: lettuce
+#    client-type: jedis
+
+    # 客戶端使用Lettuce
+    lettuce:
+      pool:
+        # 連接池最大連接數（使用負值表示沒有限制）
+        max-active: 10
+
+        # 連接池中的最大空閑連接
+        max-idle: 10
+
+        # 連接池中的最小空閑連接
+        min-idle: 0
+        # 連接池最大阻塞等待時間（使用負值表示沒有限制）
+        max-wait: -1ms
+
+#    # 客戶端使用jedis
+#    jedis:
+#      pool:
+#        # 連接池最大連接數（使用負值表示沒有限制）
+#        max-active: 10
+#
+#        # 連接池中的最大空閑連接
+#        max-idle: 10
+#
+#        # 連接池中的最小空閑連接
+#        min-idle: 0
+#        # 連接池最大阻塞等待時間（使用負值表示沒有限制）
+#        max-wait: -1ms
