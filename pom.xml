@@ -48,6 +48,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!--kaptcha依賴包-->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>kaptcha-spring-boot-starter</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
