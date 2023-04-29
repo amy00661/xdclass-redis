@@ -2,10 +2,12 @@ package net.xdclass.xdclassredis.controller;
 
 import com.google.code.kaptcha.Producer;
 import net.xdclass.xdclassredis.util.CommonUtil;
+import net.xdclass.xdclassredis.util.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.imageio.ImageIO;
@@ -53,6 +55,27 @@ public class CaptchaController {
             outputStream.close();
         }catch (Exception e){
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 支持手機號、郵箱發送驗證碼
+     * @return
+     */
+    @GetMapping("send_code")
+    public JsonData sendCode(@RequestParam(value="to", required=true)String to,
+                             @RequestParam(value="captcha", required=true) String captcha,
+                             HttpServletRequest request){
+        String key = getCaptchaKey(request);
+        String cacheCaptcha = redisTemplate.opsForValue().get(key);
+        if(captcha!=null && cacheCaptcha!=null && cacheCaptcha.equalsIgnoreCase(captcha)){
+            redisTemplate.delete(key);  // 效驗成功，刪除存儲於redis的圖形驗證碼
+
+            //TODO 發送驗證碼
+
+            return JsonData.buildSuccess();
+        }else{
+            return JsonData.buildError("驗證碼錯誤");
         }
     }
 
