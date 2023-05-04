@@ -19,7 +19,7 @@ public class JsonData {
     public JsonData(int code,Object data,String msg){
         this.code = code;
         this.msg = msg;
-        this.code = code;
+        this.data = data;
     }
 
     /**
