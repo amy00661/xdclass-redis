@@ -5,13 +5,15 @@ import net.xdclass.xdclassredis.model.VideoDO;
 import net.xdclass.xdclassredis.util.JsonData;
 import net.xdclass.xdclassredis.util.JsonUtil;
 import net.xdclass.xdclassredis.vo.CartItemVO;
+import net.xdclass.xdclassredis.vo.CartVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/cart")
@@ -63,6 +65,43 @@ public class CartController {
         return JsonData.buildSuccess();
     }
 
+    /**
+     * 查看我的購物車
+     */
+    @RequestMapping("mycart")
+    public JsonData getMycart(){
+        //獲取購物車
+        BoundHashOperations<String,Object,Object> myCart = getMyCartOps();
+
+        List<Object> itemList =  myCart.values();
+
+        List<CartItemVO> cartItemVOList = new ArrayList<>();
+
+        for(Object item : itemList){
+            CartItemVO cartItemVO = JsonUtil.jsonToPojo((String)item,CartItemVO.class);
+            cartItemVOList.add(cartItemVO);
+        }
+
+        CartVO cartVO = new CartVO();
+        cartVO.setCartItems(cartItemVOList);
+
+        return JsonData.buildSuccess(cartVO);
+
+    }
+
+
+    /**
+     * 清空我的購物車
+     * @return
+     */
+    @RequestMapping("clear")
+    public JsonData clear(){
+
+        String key = getCartKey();
+        redisTemplate.delete(key);
+
+        return JsonData.buildSuccess();
+    }
 
     /**
      * 抽取當前用戶的購物車的通用方法
