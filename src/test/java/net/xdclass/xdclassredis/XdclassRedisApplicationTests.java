@@ -3,10 +3,12 @@ package net.xdclass.xdclassredis;
 import net.xdclass.xdclassredis.controller.RankController;
 import net.xdclass.xdclassredis.model.UserDO;
 import net.xdclass.xdclassredis.model.VideoDO;
+import net.xdclass.xdclassredis.vo.UserPointVO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.BoundSetOperations;
+import org.springframework.data.redis.core.BoundZSetOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -109,7 +111,6 @@ class XdclassRedisApplicationTests {
 		operationsLW.add("A","B","C","D","E");
 		System.out.println("老王的粉絲："+operationsLW.members());
 
-
 		BoundSetOperations operationsXD = redisTemplate.boundSetOps("user:xd");
 		operationsXD.add("A","B","F","G","H","K","J","W");
 		System.out.println("小d的粉絲："+operationsXD.members());
@@ -122,7 +123,6 @@ class XdclassRedisApplicationTests {
 		Set xdSet = operationsXD.diff("user:lw");
 		System.out.println("小D的專屬用戶："+xdSet);
 
-
 		//交集
 		Set interSet = operationsLW.intersect("user:xd");
 		System.out.println("同時關注了兩個人的用戶："+interSet);
@@ -131,9 +131,35 @@ class XdclassRedisApplicationTests {
 		Set unionSet = operationsLW.union("user:xd");
 		System.out.println("兩個人的並集："+unionSet);
 
-
 		//判斷A用戶是不是老王的粉絲
 		boolean flag = operationsLW.isMember("A");
 		System.out.println("A用戶是不是老王的粉絲:"+flag);
+	}
+
+	/**
+	 * ZSet數據結構-用戶實時榜單資料模擬
+	 */
+	@Test
+	void testData() {
+		UserPointVO p1 = new UserPointVO("老王","13113");
+		UserPointVO p2 = new UserPointVO("老A","324");
+		UserPointVO p3 = new UserPointVO("老B","242");
+		UserPointVO p4 = new UserPointVO("老C","542345");
+		UserPointVO p5 = new UserPointVO("老D","235");
+		UserPointVO p6 = new UserPointVO("老E","1245");
+		UserPointVO p7 = new UserPointVO("老F","2356432");
+		UserPointVO p8 = new UserPointVO("老G","532332");
+
+		// ZSet數據結構儲存每個用戶的積分
+		BoundZSetOperations<String, UserPointVO> operations = redisTemplate.boundZSetOps("point:rank:real");
+
+		operations.add(p1,324);	// (數字部分為用戶積分)
+		operations.add(p2,542);
+		operations.add(p3,52);
+		operations.add(p4,434);
+		operations.add(p5,1123);
+		operations.add(p6,64);
+		operations.add(p7,765);
+		operations.add(p8,8);
 	}
 }
