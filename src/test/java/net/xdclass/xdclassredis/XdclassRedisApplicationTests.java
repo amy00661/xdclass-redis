@@ -99,4 +99,41 @@ class XdclassRedisApplicationTests {
 		Set<String> set2 = operations.members();
 		System.out.println(set2);
 	}
+
+	/**
+	 * 社交應用-關注粉絲列表
+	 */
+	@Test
+	public void testSocial(){
+		BoundSetOperations operationsLW = redisTemplate.boundSetOps("user:lw");
+		operationsLW.add("A","B","C","D","E");
+		System.out.println("老王的粉絲："+operationsLW.members());
+
+
+		BoundSetOperations operationsXD = redisTemplate.boundSetOps("user:xd");
+		operationsXD.add("A","B","F","G","H","K","J","W");
+		System.out.println("小d的粉絲："+operationsXD.members());
+
+		//差集
+		Set lwSet = operationsLW.diff("user:xd");
+		System.out.println("老王的專屬用戶："+lwSet);
+
+		//差集
+		Set xdSet = operationsXD.diff("user:lw");
+		System.out.println("小D的專屬用戶："+xdSet);
+
+
+		//交集
+		Set interSet = operationsLW.intersect("user:xd");
+		System.out.println("同時關注了兩個人的用戶："+interSet);
+
+		//聯集
+		Set unionSet = operationsLW.union("user:xd");
+		System.out.println("兩個人的並集："+unionSet);
+
+
+		//判斷A用戶是不是老王的粉絲
+		boolean flag = operationsLW.isMember("A");
+		System.out.println("A用戶是不是老王的粉絲:"+flag);
+	}
 }
