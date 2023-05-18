@@ -6,8 +6,11 @@ import net.xdclass.xdclassredis.model.VideoDO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+
+import java.util.Set;
 
 @SpringBootTest
 class XdclassRedisApplicationTests {
@@ -77,5 +80,23 @@ class XdclassRedisApplicationTests {
 	public void replaceRank(){
 		VideoDO video = new VideoDO(5432,"小滴課堂面試專題第一季","xdclass.net",323);
 		redisTemplate.opsForList().set(RankController.DAILY_RANK_KEY, 1, video);
+	}
+
+	/**
+	 * [Set數據結構]用戶畫像標籤去重
+	 */
+	@Test
+	public void userProfile(){
+		BoundSetOperations operations = redisTemplate.boundSetOps("user:tags:1");
+		// Set類型資料添加
+		operations.add("car","student","rich","dog","taipei","rich");
+
+		Set<String> set1 = operations.members();
+		System.out.println(set1);
+
+		// Set類型資料移除
+		operations.remove("dog");
+		Set<String> set2 = operations.members();
+		System.out.println(set2);
 	}
 }
