@@ -6,6 +6,9 @@ logging:
     org.springframework.web: DEBUG
 
 spring:
+#指定緩存的類型(為redis)
+  cache:
+    type: redis
   redis:
     host: { IP位址 }
     port: 6379
