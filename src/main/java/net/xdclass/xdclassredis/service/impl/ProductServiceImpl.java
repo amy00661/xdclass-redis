@@ -1,10 +1,15 @@
 package net.xdclass.xdclassredis.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import net.xdclass.xdclassredis.dao.ProductMapper;
 import net.xdclass.xdclassredis.model.ProductDO;
 import net.xdclass.xdclassredis.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -31,6 +36,21 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDO findById(int id) {
         return productMapper.selectById(id);
+    }
+
+    @Override
+    public Map<String, Object> page(int page, int size) {
+        Page pageInfo = new Page<>(page,size);
+
+        IPage<ProductDO> iPage = productMapper.selectPage(pageInfo,null);
+
+        Map<String,Object> pageMap = new HashMap<>(3);
+
+        pageMap.put("total_record",iPage.getTotal());   // 總筆數
+        pageMap.put("total_page",iPage.getPages());     // 總頁數
+        pageMap.put("current_data",iPage.getRecords()); // 指定頁面的多筆ProductDO
+
+        return pageMap;
     }
 
 }
