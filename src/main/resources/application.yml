@@ -45,3 +45,17 @@ spring:
 #        min-idle: 0
 #        # 連接池最大阻塞等待時間（使用負值表示沒有限制）
 #        max-wait: -1ms
+
+
+#==============================數據庫相關配置========================================
+#數據庫配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/xdclass_redis?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Taipei
+    username: root
+    password: root
+
+#配置plus打印sql日誌
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
