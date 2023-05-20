@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -22,7 +23,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 
 @Configuration
@@ -62,6 +65,7 @@ public class AppConfiguration {
         return redisTemplate;
     }
 
+    // ================================= MybatisPlus配置 =================================
     /**
      * 新的分頁插件
      */
@@ -73,6 +77,7 @@ public class AppConfiguration {
     }
 
 
+    // ================================= SpringCache配置 =================================
     /**
      * 1分鐘過期
      * @param connectionFactory
@@ -139,5 +144,21 @@ public class AppConfiguration {
                 //.disableCachingNullValues()   // 禁止緩存NULL值
                                     // 使用Jackson2JsonRedisSerialize 替換默認的Jdk序列化
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer));
+    }
+
+    /**
+     * 自定義緩存key的命名規則
+     * @return
+     */
+    @Bean
+    public KeyGenerator springCacheCustomKeyGenerator() {
+        return new KeyGenerator() {
+            @Override
+            public Object generate(Object o, Method method, Object... objects) {
+                String key = o.getClass().getSimpleName() + "_" + method.getName() + "_" + StringUtils.arrayToDelimitedString(objects, "_");
+                System.out.println(key);
+                return key;
+            }
+        };
     }
 }

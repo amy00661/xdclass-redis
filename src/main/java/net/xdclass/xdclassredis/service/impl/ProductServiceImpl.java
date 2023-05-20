@@ -35,13 +35,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(value = {"product"},key = "#root.args[0]", cacheManager = "cacheManager1Minute")
+    // @Cacheable(value = {"product"},key = "#root.args[0]", cacheManager = "cacheManager1Minute")
+    @Cacheable(value = {"product"}, keyGenerator = "springCacheCustomKeyGenerator",cacheManager = "cacheManager1Minute")
     public ProductDO findById(int id) {
         return productMapper.selectById(id);
     }
 
     @Override
-    @Cacheable(value = {"product_page"},key = "#root.methodName+'_'+#page+'_'+#size")
+    // @Cacheable(value = {"product_page"},key = "#root.methodName+'_'+#page+'_'+#size")
+    @Cacheable(value = {"product_page"},keyGenerator = "springCacheCustomKeyGenerator")
     public Map<String, Object> page(int page, int size) {
         Page pageInfo = new Page<>(page,size);
 
