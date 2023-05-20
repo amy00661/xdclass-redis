@@ -4,14 +4,26 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 @Configuration
 public class AppConfiguration {
@@ -58,5 +70,74 @@ public class AppConfiguration {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
         return interceptor;
+    }
+
+
+    /**
+     * 1分鐘過期
+     * @param connectionFactory
+     * @return
+     */
+    @Bean
+    public RedisCacheManager cacheManager1Minute(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration config = instanceConfig(60L);
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)
+                .transactionAware()
+                .build();
+    }
+
+
+    /**
+     * 默認是1小時
+     * @param connectionFactory
+     * @return
+     */
+    @Bean
+    @Primary  // @Cacheable如未指定，則默認緩存期限1小時
+    public RedisCacheManager cacheManager1Hour(RedisConnectionFactory connectionFactory) {
+        RedisCacheConfiguration config = instanceConfig(3600L);
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)
+                .transactionAware()
+                .build();
+    }
+
+    /**
+     * 1天過期
+     * @param connectionFactory
+     * @return
+     */
+    @Bean
+    public RedisCacheManager cacheManager1Day(RedisConnectionFactory connectionFactory) {
+
+        RedisCacheConfiguration config = instanceConfig(3600 * 24L);
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)
+                .transactionAware()
+                .build();
+    }
+
+    private RedisCacheConfiguration instanceConfig(Long ttl) {
+
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.registerModule(new JavaTimeModule());
+        // 去掉各種@JsonSerialize註解的解析
+        objectMapper.configure(MapperFeature.USE_ANNOTATIONS, false);
+        // 只針對非空的值進行序列化
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        // 將類型序列化到屬性json字符串中
+        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance ,
+                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+
+        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
+
+        return RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofSeconds(ttl))  // 指定配置過期時間以「秒」為單位
+                //.disableCachingNullValues()   // 禁止緩存NULL值
+                                    // 使用Jackson2JsonRedisSerialize 替換默認的Jdk序列化
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer));
     }
 }

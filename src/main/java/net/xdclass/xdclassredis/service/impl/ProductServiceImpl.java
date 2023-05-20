@@ -6,6 +6,7 @@ import net.xdclass.xdclassredis.dao.ProductMapper;
 import net.xdclass.xdclassredis.model.ProductDO;
 import net.xdclass.xdclassredis.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -34,11 +35,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = {"product"},key = "#root.args[0]", cacheManager = "cacheManager1Minute")
     public ProductDO findById(int id) {
         return productMapper.selectById(id);
     }
 
     @Override
+    @Cacheable(value = {"product_page"},key = "#root.methodName+'_'+#page+'_'+#size")
     public Map<String, Object> page(int page, int size) {
         Page pageInfo = new Page<>(page,size);
 
