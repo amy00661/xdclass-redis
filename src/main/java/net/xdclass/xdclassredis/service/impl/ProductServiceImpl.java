@@ -6,6 +6,7 @@ import net.xdclass.xdclassredis.dao.ProductMapper;
 import net.xdclass.xdclassredis.model.ProductDO;
 import net.xdclass.xdclassredis.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = {"product"},key = "#root.args[0]")
     public int delById(int id) {
         return productMapper.deleteById(id);
     }
