@@ -6,6 +6,7 @@ import net.xdclass.xdclassredis.dao.ProductMapper;
 import net.xdclass.xdclassredis.model.ProductDO;
 import net.xdclass.xdclassredis.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -30,13 +31,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public int updateById(ProductDO productDO) {
-        return productMapper.updateById(productDO);
+    @CachePut(value = {"product"},key="#productDO.id", cacheManager = "cacheManager1Minute")
+    public ProductDO updateById(ProductDO productDO) {
+        productMapper.updateById(productDO);
+        return findById(productDO.getId().intValue());
     }
 
     @Override
-    // @Cacheable(value = {"product"},key = "#root.args[0]", cacheManager = "cacheManager1Minute")
-    @Cacheable(value = {"product"}, keyGenerator = "springCacheCustomKeyGenerator",cacheManager = "cacheManager1Minute")
+    @Cacheable(value = {"product"},key = "#root.args[0]", cacheManager = "cacheManager1Minute")
+//    @Cacheable(value = {"product"}, keyGenerator = "springCacheCustomKeyGenerator",cacheManager = "cacheManager1Minute")
     public ProductDO findById(int id) {
         return productMapper.selectById(id);
     }

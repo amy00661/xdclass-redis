@@ -32,9 +32,9 @@ public class ProductController {
     @PostMapping("update")
     public JsonData update(@RequestBody ProductDO productDO){
 
-        int rows = productService.updateById(productDO);
+        ProductDO ProductDO = productService.updateById(productDO);
 
-        return JsonData.buildSuccess(rows);
+        return JsonData.buildSuccess(ProductDO);
     }
 
     @DeleteMapping("del")

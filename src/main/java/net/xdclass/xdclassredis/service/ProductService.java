@@ -12,7 +12,7 @@ public interface ProductService {
     int delById(int id);
 
 
-    int updateById(ProductDO productDO);
+    ProductDO updateById(ProductDO productDO);
 
 
     ProductDO findById(int id);
