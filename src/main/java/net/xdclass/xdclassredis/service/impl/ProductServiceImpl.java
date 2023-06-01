@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -40,8 +41,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(value = {"product"},key = "#root.args[0]", cacheManager = "cacheManager1Minute")
+//    @Cacheable(value = {"product"},key = "#root.args[0]", cacheManager = "cacheManager1Minute")
 //    @Cacheable(value = {"product"}, keyGenerator = "springCacheCustomKeyGenerator",cacheManager = "cacheManager1Minute")
+    @Caching(
+            cacheable = {
+                    @Cacheable(value = {"product"},key = "#root.args[0]"),
+                    @Cacheable(value = {"product"},key = "'xdclass_'+#root.args[0]")
+            },
+            put = {
+                    @CachePut(value = {"product_test"},key="#id", cacheManager = "cacheManager1Minute")
+            }
+    )
     public ProductDO findById(int id) {
         return productMapper.selectById(id);
     }
